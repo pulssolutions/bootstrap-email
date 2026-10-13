@@ -4,7 +4,7 @@
     <p align="center">If you know Bootstrap, you know Bootstrap Email.</cite>
 </p>
 
-<br>
+> **Puls Solutions fork.** The upstream repository [schwarzdavid/bootstrap-email](https://github.com/schwarzdavid/bootstrap-email) was archived in January 2026. This fork removes the vanished `sass-extract` dependency (style variables are now read with `sass` directly) and pins `cheerio` to `1.0.0-rc.10` and `sass` to `1.51`. Install it with `"bootstrap-email": "github:PulsSolutions/bootstrap-email#<sha>"`.
 
 [![NPM](https://nodei.co/npm/bootstrap-email.png)](https://nodei.co/npm/bootstrap-email/)
 

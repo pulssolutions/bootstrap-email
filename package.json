@@ -24,14 +24,14 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/schwarzdavid/bootstrap-email.git"
+		"url": "git+https://github.com/PulsSolutions/bootstrap-email.git"
 	},
 	"author": "David Schwarz <schwarz.david10@gmail.com>",
 	"license": "MIT",
 	"bugs": {
-		"url": "https://github.com/schwarzdavid/bootstrap-email/issues"
+		"url": "https://github.com/PulsSolutions/bootstrap-email/issues"
 	},
-	"homepage": "https://github.com/schwarzdavid/bootstrap-email#readme",
+	"homepage": "https://github.com/PulsSolutions/bootstrap-email#readme",
 	"dependencies": {
 		"bunyan": "^1.8.12",
 		"cheerio": "1.0.0-rc.10",
