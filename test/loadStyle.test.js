@@ -18,7 +18,11 @@ test('reads overridden style variables from a custom stylesheet', () => {
 	const style = path.join(dir, 'custom.scss');
 	fs.writeFileSync(style, '$grid-columns: 6;\n$container-max-width: 480px;\n@import "' +
 		path.join(__dirname, '../src/assets/bootstrap-email.scss').replace(/\\/g, '/') + '";\n');
-	const email = new BootstrapEmail(html, {style, logLevel: BootstrapEmail.LOG_LEVEL.ERROR});
-	assert.deepStrictEqual(email._vars, {'$grid-columns': 6});
+	const email = new BootstrapEmail(html, {
+		style,
+		variables: {'$container-max-width': 600},
+		logLevel: BootstrapEmail.LOG_LEVEL.ERROR
+	});
+	assert.deepStrictEqual(email._vars, {'$grid-columns': 6, '$container-max-width': 480});
 	assert.match(email.compile(), /width: *100%/);
 });

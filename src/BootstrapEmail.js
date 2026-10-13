@@ -420,17 +420,20 @@ class BootstrapEmail {
 		if (['.scss', '.sass'].includes(path.extname(stylePath))) {
 			this._logger.debug(stylePath + ' detected as sass-file');
 
-			const sassOptions = {style: 'compressed', loadPaths: [path.dirname(stylePath)], logger: sass.Logger.silent};
-			const css = sass.compile(stylePath, sassOptions).css;
-
-			// Read the style variables back out of the stylesheet by compiling a
-			// tiny rule that prints them, e.g. "-be-vars{grid-columns:12}"
+			// Compile the stylesheet through a wrapper that appends one rule printing
+			// the style variables, e.g. "-be-vars{grid-columns:12}", then strip it again
 			const names = Object.values(STYLE_VARIABLES).map(n => n.slice(1));
-			const probe = '@use "sass:meta";@use "' + path.basename(stylePath) + '" as *;-be-vars{' +
+			const wrapper = '@use "sass:meta";@use "' + path.basename(stylePath) + '" as *;-be-vars{' +
 				names.map(n => `@if meta.global-variable-exists("${n}"){${n}:$${n};}`).join('') + '}';
-			const probeCss = sass.compileString(probe, sassOptions).css;
+			const compiled = sass.compileString(wrapper, {
+				style: 'compressed',
+				loadPaths: [path.dirname(stylePath)],
+				logger: sass.Logger.silent
+			}).css;
+			const marker = compiled.lastIndexOf('-be-vars{');
+			const css = compiled.slice(0, marker);
 			const vars = {};
-			for (const [, name, value] of probeCss.matchAll(/([\w-]+):([^;}]+)/g)) {
+			for (const [, name, value] of compiled.slice(marker).matchAll(/([\w-]+):([^;}]+)/g)) {
 				vars['$' + name] = {value};
 			}
 
