@@ -2,7 +2,6 @@ const fs = require('fs');
 const path = require('path');
 const cheerio = require('cheerio').default;
 const sass = require('sass');
-const sassExtract = require('sass-extract');
 const postcss = require('postcss');
 const extractHeaderCss = require('./lib/PostcssInlineStylesPlugin');
 const bunyan = require('bunyan');
@@ -421,19 +420,23 @@ class BootstrapEmail {
 		if (['.scss', '.sass'].includes(path.extname(stylePath))) {
 			this._logger.debug(stylePath + ' detected as sass-file');
 
-			const rendered = sassExtract.renderSync({
-				file: stylePath,
-				outputStyle: 'compressed'
-			}, {
-				implementation: sass
-			});
+			const sassOptions = {style: 'compressed', loadPaths: [path.dirname(stylePath)], logger: sass.Logger.silent};
+			const css = sass.compile(stylePath, sassOptions).css;
+
+			// Read the style variables back out of the stylesheet by compiling a
+			// tiny rule that prints them, e.g. "-be-vars{grid-columns:12}"
+			const names = Object.values(STYLE_VARIABLES).map(n => n.slice(1));
+			const probe = '@use "sass:meta";@use "' + path.basename(stylePath) + '" as *;-be-vars{' +
+				names.map(n => `@if meta.global-variable-exists("${n}"){${n}:$${n};}`).join('') + '}';
+			const probeCss = sass.compileString(probe, sassOptions).css;
+			const vars = {};
+			for (const [, name, value] of probeCss.matchAll(/([\w-]+):([^;}]+)/g)) {
+				vars['$' + name] = {value};
+			}
 
 			this._logger.debug(stylePath + ' read and parsed successfully');
 
-			return {
-				css: rendered.css.toString(),
-				vars: rendered.vars.global
-			}
+			return {css, vars};
 		} else {
 			const css = fs.readFileSync(stylePath, 'utf8');
 			this._logger.debug(stylePath + ' read successfully');
